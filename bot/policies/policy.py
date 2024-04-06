@@ -6,7 +6,7 @@ class Policy(ABC):
         Constructor for the Policy class. It can take flexible parameters.
         Contestants are free to maintain internal state and use any auxiliary data or information
         within this class.
-        """
+        """ 
         super().__init__()
 
     def act(self, external_state, internal_state):
