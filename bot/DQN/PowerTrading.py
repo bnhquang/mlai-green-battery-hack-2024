@@ -1,7 +1,5 @@
 import time
 import random
-import gymnasium as gym
-from gymnasium import spaces
 import cv2
 import numpy as np
 from environment import BatteryEnv
