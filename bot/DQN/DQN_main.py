@@ -1,12 +1,8 @@
-import gym
 import torch
 from DQN_Agent import DQN_Agent
 from Preprocesing import get_dataset
 from PowerTrading import PowerTrading
 from DO_NOT_TOUCH.environment import BatteryEnv
-import numpy as np
-import random
-from datetime import datetime
 from torch.utils.tensorboard import SummaryWriter
 import time
 writer = SummaryWriter(f'./logs/{time.time()}')

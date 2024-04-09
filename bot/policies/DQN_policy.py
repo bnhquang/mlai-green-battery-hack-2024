@@ -1,7 +1,7 @@
 import pandas as pd
 from collections import deque
-import numpy as np
-import torch
+# import numpy as np
+import torch as torch
 
 from policies.policy import Policy
 from DQN.DQN_Agent import DQN_Agent
@@ -24,7 +24,7 @@ class DQN_Policy(Policy):
             lr=0.0001,
             eps_dec=0.00001
         )
-        self.agent.load_agent('../bot/DQN/checkpoints/dqn_2.zip')
+        self.agent.load_agent('./bot/DQN/checkpoints/dqn_2.zip')
 
     def act(self, external_state, internal_state):
 
