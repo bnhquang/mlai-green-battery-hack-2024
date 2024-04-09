@@ -7,9 +7,10 @@ from torch.utils.tensorboard import SummaryWriter
 import time
 writer = SummaryWriter(f'./logs/{time.time()}')
 
-EPISODES = 2
+EPISODES = 10
 EPISODES_PER_SAVE = 1
 STEPS_PER_LOG = 1000
+STEPS_PER_UPDATE = 100
 DATASET_PATH = '../data/validation_data.csv'
 CHECKPOINT_PATH = './checkpoints'
 LOAD_PATH = './checkpoints'
@@ -20,7 +21,7 @@ def train_agent(continue_training):
     data = get_dataset(DATASET_PATH)
     # print(len(data))
     env = PowerTrading(BatteryEnv(data))
-    agent = DQN_Agent(replay_mem_size=50000,
+    agent = DQN_Agent(replay_mem_size=10000,
                       gamma=0.99,
                       epsilon=1,
                       batch_size=128,
@@ -56,10 +57,11 @@ def train_agent(continue_training):
             agent.update_replay_mem(current_state, action, reward, new_state, done)
             loss_sum += agent.train()
             current_state = new_state
-            agent.update_target_model()
-            if i % STEPS_PER_LOG == 0:
+            if i % STEPS_PER_UPDATE == 0:
                 print(f'Reward: {reward}, Balance: {env.internal_state["total_profit"]}, '
                       f'Charge: {env.internal_state["battery_soc"]}, Step: {env.battery_env.current_step}')
+                agent.update_target_model()
+            if i % STEPS_PER_LOG == 0:
                 agent.model.eval()
                 val_agent(agent)
                 writer.add_scalar('reward', score_sum, ep)
@@ -82,7 +84,7 @@ def val_agent(agent: DQN_Agent):
         done = False
         agent.update_replay_mem(current_state, action, reward, new_state, done)
         current_state = new_state
-    print(f'Validation balance: {test_env.internal_state["total_profit"]}')
+    print(f'Validation balance: {test_env.internal_state["total_profit"]}, Validation charge: {test_env.internal_state["battery_soc"]}')
 
 if __name__ == '__main__':
     train_agent(continue_training=False)

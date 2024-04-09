@@ -16,12 +16,12 @@ class SecurityException(Exception):
     pass
 
 def verify_critical_files_were_not_altered():
-    files_to_check = ['bot/DO_NOT_TOUCH/evaluate.py', 'bot/DO_NOT_TOUCH/environment.py']
+    files_to_check = ['./DO_NOT_TOUCH/evaluate.py', './DO_NOT_TOUCH/environment.py']
     differences_found = False
 
     for file in files_to_check:
         original_file = file
-        new_file = f'bot/{file.split("/")[-1]}'
+        new_file = f'./{file.split("/")[-1]}'
 
         if not filecmp.cmp(original_file, new_file):
             differences_found = True
@@ -43,27 +43,27 @@ if __name__ == '__main__':
     client = docker.from_env()
 
     docker_image_tag = 'test-bot'
-    client.images.build(path='./bot', tag=docker_image_tag, platform=get_default_platform(), quiet=False)
+    client.images.build(path='../bot', tag=docker_image_tag, platform=get_default_platform(), quiet=False)
 
 
     current_dir = os.getcwd() # docker needs us to specify an absolute path
 
-    current_timestamp_as_string = str(int(time.time())) 
-    data_dir = os.path.join(current_dir, "bot", "results")
+    current_timestamp_as_string = str(int(time.time()))
+    data_dir = os.path.join(current_dir, "results")
     output_file = os.path.join(data_dir, f"{current_timestamp_as_string}.json")
 
-    input_file = os.path.join("bot", "data", "validation_data.csv")
+    input_file = './data/validation_data.csv'
     with open(input_file, 'r') as file:
         data = file.read()
-    
+
     input_file_in_data_dir = os.path.join(data_dir, "input-data.csv")
     with open(input_file_in_data_dir, 'w') as file:
         file.write(data)
 
     container = client.containers.run(
-        docker_image_tag, 
-        command=f"python bot/evaluate.py --output_file {output_file} --data {input_file_in_data_dir} --present_index {0} --initial_soc {7.5} --initial_profit {0}", 
-        volumes={data_dir: {'bind': data_dir, 'mode': 'rw'}},
+        docker_image_tag,
+        command=f"python bot/evaluate.py --output_file {output_file} --data {input_file_in_data_dir} --present_index {0} --initial_soc {7.5} --initial_profit {0}",
+        volumes={data_dir: {'bind': data_dir.split(':')[1], 'mode': 'rw'}},
         detach=True,
         network_mode="none",
     )

@@ -9,6 +9,7 @@ import numpy as np
 from collections import deque
 from DQN.DQNet import DQNet
 import os
+import pickle
 
 random.seed(42)
 torch.cuda.manual_seed_all(42)
@@ -35,6 +36,9 @@ class DQN_Agent():
         transition = (current_state, action, reward, new_state, done)
         self.replay_mem.append(transition)
 
+    def save_replay_mem(self, path):
+        with open('replay_mem.pkl', 'wb') as f:
+            pickle.dump(self.replay_mem, f)
     def choose_action(self, current_state):
         if np.random.random() > self.epsilon:
             # Get action from model
@@ -66,9 +70,9 @@ class DQN_Agent():
             return 0
         # Sample a batch from the replay memory of transitions
         batch = random.sample(self.replay_mem, self.batch_size)
-        not_done_mask = torch.tensor(([transition[4] is False for transition in batch]),
-                                     device=self.model.device, dtype=torch.bool).to(self.model.device)
-        not_done_next_states = torch.tensor(np.array([transition[3] for transition in batch if transition[4] is False]),
+        # not_done_mask = torch.tensor(([transition[4] is False for transition in batch]),
+        #                              device=self.model.device, dtype=torch.bool).to(self.model.device)
+        next_state_batch = torch.tensor(np.array([transition[3] for transition in batch]),
                                             device=self.model.device, dtype=torch.float32).to(self.model.device)
         current_state_batch = torch.tensor(np.array([transition[0] for transition in batch]),
                                            device=self.model.device, dtype=torch.float32).to(self.model.device)
@@ -83,7 +87,7 @@ class DQN_Agent():
         future_q_values = torch.zeros(self.batch_size, device=self.model.device)
 
         with torch.no_grad():
-            future_q_values[not_done_mask] = self.target_model(not_done_next_states).max(1).values
+            future_q_values = self.target_model(next_state_batch).max(1).values
 
         expected_q_values = reward_batch + future_q_values * self.gamma
 

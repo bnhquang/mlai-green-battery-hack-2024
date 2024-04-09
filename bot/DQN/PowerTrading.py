@@ -46,12 +46,12 @@ class PowerTrading():
             self.external_state = temp_external_state
 
         battery_delta = self.internal_state['battery_soc'] - battery_charge_prev
-        profit_reward = self.internal_state['profit_delta']
-        charge_reward = battery_delta * 5 / price_prev if (price_prev != 0) else 0
-        discharge_reward = -battery_delta * price_prev if (battery_delta < 0) else 0
-        capped_penalty = -50 if (self.internal_state['battery_soc'] == self.battery_env.battery.capacity_kWh or
+        profit_reward = self.internal_state['profit_delta'] * 5
+        charge_reward = battery_delta / price_prev if price_prev > 0 else battery_delta * 10 if price_prev < 0 else 0
+        discharge_reward = -battery_delta * price_prev * 5
+        capped_penalty = -10 if (self.internal_state['battery_soc'] == self.battery_env.battery.capacity_kWh or
                                  self.internal_state['battery_soc'] == 0) else 0
-        reward += profit_reward + discharge_reward + capped_penalty + charge_reward
+        reward += profit_reward + charge_reward + discharge_reward + capped_penalty
         return reward
 
     def reset(self):

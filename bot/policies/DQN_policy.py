@@ -24,7 +24,8 @@ class DQN_Policy(Policy):
             lr=0.0001,
             eps_dec=0.00001
         )
-        self.agent.load_agent('./bot/DQN/checkpoints/dqn_2.zip')
+        self.agent.load_agent('./bot/DQN/checkpoints/dqn_10.zip')
+
 
     def act(self, external_state, internal_state):
 
