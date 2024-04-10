@@ -31,6 +31,7 @@ class VerySimplePolicy(Policy):
         min_moving_average = np.mean(self.min_price_history)
         moving_average = np.mean(self.price_history)
         # print(f'Max: {max_moving_average}, Min: {min_moving_average}, Average: {moving_average}')
+
         if max_moving_average < market_price:
             self.max_price_history.append(market_price)
             # print(np.mean(self.max_price_history))
@@ -39,23 +40,23 @@ class VerySimplePolicy(Policy):
             # print(self.min_price_history)
         self.price_history.append(market_price)
 
-        if len(self.max_price_history) == len(self.min_price_history) == self.window_size:
-            if market_price > max_moving_average:
-                charge_kW = -internal_state['max_charge_rate']
-                solar_kW_to_battery = 0
-            elif market_price < min_moving_average:
-                charge_kW = internal_state['max_charge_rate']
-                solar_kW_to_battery = external_state['pv_power']
-            elif market_price > moving_average:
-                charge_kW = -internal_state['max_charge_rate']
-                solar_kW_to_battery = 0
-                # self.max_price_history.append(moving_average * 2)
-            else:
-                charge_kW = internal_state['max_charge_rate']
-                solar_kW_to_battery = external_state['pv_power']
-                
+        if market_price > max_moving_average:
+            charge_kW = -internal_state['max_charge_rate']
+            solar_kW_to_battery = 0
+        elif market_price < min_moving_average:
+            charge_kW = internal_state['max_charge_rate']
+            solar_kW_to_battery = external_state['pv_power']
+        elif market_price > moving_average:
+            charge_kW = -internal_state['max_charge_rate'] / 2
+            # charge_kW = 0
+            solar_kW_to_battery = 0
+            self.max_price_history.append(max_moving_average * 0.95)
         else:
-            solar_kW_to_battery = charge_kW = 0
+            charge_kW = internal_state['max_charge_rate'] / 2
+            # charge_kW = 0
+            solar_kW_to_battery = external_state['pv_power']
+            self.min_price_history.append(min_moving_average * 0.95)
+
 
         return solar_kW_to_battery, charge_kW
 
