@@ -53,7 +53,7 @@ class VerySimplePolicy(Policy):
             else:
                 charge_kW = internal_state['max_charge_rate']
                 solar_kW_to_battery = external_state['pv_power']
-                # self.min_price_history.append(moving_average / 2)
+                
         else:
             solar_kW_to_battery = charge_kW = 0
 
