@@ -13,13 +13,9 @@ class VerySimplePolicy(Policy):
         super().__init__()
         # print("Hey")
         self.window_size = window_size
-        self.max_price_history = deque(maxlen=(window_size))
-        self.min_price_history = deque(maxlen=(window_size))
-        self.price_history = deque(maxlen=window_size)
-
-        self.max_price_history.append(0)
-        self.min_price_history.append(100)
-        self.price_history.append(0)
+        self.max_price_history = deque([50, 50, 50, 50, 50], maxlen=window_size)
+        self.min_price_history = deque([0, 0, 0, 0, 0], maxlen=window_size)
+        self.price_history = deque([0], maxlen=window_size)
 
 # 6-6-6
 # Average profit ($): 203.44 ± 96.61
@@ -43,7 +39,7 @@ class VerySimplePolicy(Policy):
         if market_price > max_moving_average:
             charge_kW = -internal_state['max_charge_rate']
             solar_kW_to_battery = 0
-        elif market_price < min_moving_average * 0.8:
+        elif market_price < min_moving_average * 0.7:
             charge_kW = internal_state['max_charge_rate']
             solar_kW_to_battery = external_state['pv_power']
         elif market_price > moving_average:
