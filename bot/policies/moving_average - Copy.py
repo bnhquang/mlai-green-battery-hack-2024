@@ -43,7 +43,7 @@ class VerySimplePolicy(Policy):
         if market_price > max_moving_average:
             charge_kW = -internal_state['max_charge_rate']
             solar_kW_to_battery = 0
-        elif market_price < min_moving_average:
+        elif market_price < min_moving_average * 0.8:
             charge_kW = internal_state['max_charge_rate']
             solar_kW_to_battery = external_state['pv_power']
         elif market_price > moving_average:
@@ -55,7 +55,7 @@ class VerySimplePolicy(Policy):
             # charge_kW = internal_state['max_charge_rate'] / 2
             charge_kW = 0
             solar_kW_to_battery = external_state['pv_power']
-            self.min_price_history.append(min_moving_average * 0.9)
+            self.min_price_history.append(min_moving_average * 0.8)
 
 
         return solar_kW_to_battery, charge_kW
