@@ -1,6 +1,6 @@
 {
   "policy": {
-    "class_name": "HistoricalPricePolicy",
+    "class_name": "VerySimplePolicy",
     "parameters": {
     }
   }
