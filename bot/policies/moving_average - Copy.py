@@ -4,18 +4,17 @@ import numpy as np
 from policies.policy import Policy
 
 class VerySimplePolicy(Policy):
-    def __init__(self, window_size=6):
+    def __init__(self, short_window_size=3, long_window_size=6):
         """
         Constructor for the MovingAveragePolicy.
 
         :param window_size: The number of past market prices to consider for the moving average (default: 5).
         """
         super().__init__()
-        # print("Hey")
-        self.window_size = window_size
-        self.max_price_history = deque([50, 50, 50, 50, 50], maxlen=window_size)
-        self.min_price_history = deque([0, 0, 0, 0, 0], maxlen=window_size)
-        self.price_history = deque([0], maxlen=window_size)
+        self.short = deque([45, 45, 45], maxlen=short_window_size)
+        self.long = deque([45, 45, 45, 45, 45], maxlen=long_window_size)
+        # historical_data = pd.read_csv('./data/validation_data.csv')
+        # self.load_historical(historical_data[:10])
 
 # 6-6-6
 # Average profit ($): 203.44 ± 96.61
@@ -23,40 +22,22 @@ class VerySimplePolicy(Policy):
 
     def act(self, external_state, internal_state):
         market_price = external_state['price']
-        max_moving_average = np.mean(self.max_price_history)
-        min_moving_average = np.mean(self.min_price_history)
-        moving_average = np.mean(self.price_history)
+        self.short.append(market_price)
+        self.long.append(market_price)
+        short_ma = np.mean(self.short)
+        long_ma = np.mean(self.long)
         # print(f'Max: {max_moving_average}, Min: {min_moving_average}, Average: {moving_average}')
 
-        if max_moving_average < market_price:
-            self.max_price_history.append(market_price)
-            # print(np.mean(self.max_price_history))
-        if market_price < min_moving_average:
-            self.min_price_history.append(market_price)
-            # print(self.min_price_history)
-        self.price_history.append(market_price)
-
-
-        if market_price < min_moving_average * 0.7:
-            charge_kW = internal_state['max_charge_rate']
-            solar_kW_to_battery = external_state['pv_power']
-        elif market_price > max_moving_average:
-            charge_kW = -internal_state['max_charge_rate']
+        if short_ma > long_ma:
+            charge_kW = -internal_state['max_charge_rate'] * 10
             solar_kW_to_battery = 0
-        elif market_price > moving_average:
-            # charge_kW = -internal_state['max_charge_rate'] / 2
-            charge_kW = 0
-            solar_kW_to_battery = 0
-            self.max_price_history.append(max_moving_average * 0.9)
         else:
-            # charge_kW = internal_state['max_charge_rate'] / 2
-            charge_kW = 0
+            charge_kW = internal_state['max_charge_rate'] * 10
             solar_kW_to_battery = external_state['pv_power']
-            self.min_price_history.append(min_moving_average * 0.8)
-
 
         return solar_kW_to_battery, charge_kW
 
-    def load_historical(self, external_states: pd.DataFrame):   
+    def load_historical(self, external_states: pd.DataFrame):
         for price in external_states['price'].values:
-            self.price_history.append(price)
+            self.short.append(price)
+            self.long.append(price)
