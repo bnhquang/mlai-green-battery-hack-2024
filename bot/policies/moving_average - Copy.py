@@ -4,7 +4,7 @@ import numpy as np
 from policies.policy import Policy
 
 class VerySimplePolicy(Policy):
-    def __init__(self, short_window_size=3, long_window_size=6):
+    def __init__(self, short_window_size=5, long_window_size=10):
         """
         Constructor for the MovingAveragePolicy.
 
@@ -29,10 +29,10 @@ class VerySimplePolicy(Policy):
         # print(f'Max: {max_moving_average}, Min: {min_moving_average}, Average: {moving_average}')
 
         if short_ma > long_ma:
-            charge_kW = -internal_state['max_charge_rate'] * 10
+            charge_kW = -internal_state['max_charge_rate']
             solar_kW_to_battery = 0
         else:
-            charge_kW = internal_state['max_charge_rate'] * 10
+            charge_kW = internal_state['max_charge_rate']
             solar_kW_to_battery = external_state['pv_power']
 
         return solar_kW_to_battery, charge_kW
