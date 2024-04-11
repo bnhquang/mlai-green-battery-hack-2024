@@ -4,7 +4,7 @@ import numpy as np
 from policies.policy import Policy
 
 class VerySimplePolicy(Policy):
-    def __init__(self, short_window_size=6, long_window_size=12, historical_price_len=15):
+    def __init__(self, short_window_size=5, long_window_size=10, historical_price_len=15):
         """
         Constructor for the MovingAveragePolicy.
 
@@ -17,9 +17,9 @@ class VerySimplePolicy(Policy):
         # historical_data = pd.read_csv('./data/validation_data.csv')
         # self.load_historical(historical_data[:20])
 
-# 6-6-6
-# Average profit ($): 203.44 ± 96.61
-# Average profit inc rundown ($): 343.25
+# 2.79 6-12 with short percent
+
+
 
     def act(self, external_state, internal_state):
         market_price = external_state['price']
