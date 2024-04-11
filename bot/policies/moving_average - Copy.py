@@ -35,10 +35,10 @@ class VerySimplePolicy(Policy):
         # print(f'Market price: {market_price}, ma: {short_ma}, prev ma: {prev_short_ma}')
         # print('Diff:', diff_percent)
         if short_ma > long_ma:
-            charge_kW = -internal_state['max_charge_rate'] * diff_percent if diff_percent < 0.3 else min(diff_percent * 2, 1)
+            charge_kW = -internal_state['max_charge_rate'] * min(diff_percent * 2, 1)
             solar_kW_to_battery = 0
         else:
-            charge_kW = internal_state['max_charge_rate'] * diff_percent if diff_percent < 0.3 else min(diff_percent * 2, 1)
+            charge_kW = internal_state['max_charge_rate'] * min(diff_percent * 2, 1)
             solar_kW_to_battery = external_state['pv_power']
 
         return solar_kW_to_battery, charge_kW
