@@ -4,7 +4,7 @@ import numpy as np
 from policies.policy import Policy
 
 class VerySimplePolicy(Policy):
-    def __init__(self, short_window_size=8, long_window_size=16, historical_price_len=15):
+    def __init__(self, short_window_size=10, long_window_size=20, historical_price_len=15):
         """
         Constructor for the MovingAveragePolicy.
 
@@ -19,7 +19,7 @@ class VerySimplePolicy(Policy):
 
 # 2.79 6-12 with short percent
 # 2.59 5-10 with short percent
-
+# 3.08 8-16
 
 
     def act(self, external_state, internal_state):
@@ -31,7 +31,7 @@ class VerySimplePolicy(Policy):
         long_ma = np.mean(self.long)
         # print(f'Max: {max_moving_average}, Min: {min_moving_average}, Average: {moving_average}')
         # moving_average = np.mean(self.historic_price)
-        diff_percent = abs(short_ma - market_price) / (abs(short_ma) + abs(market_price))
+        diff_percent = abs(long_ma - market_price) / (abs(long_ma) + abs(market_price))
         # print(f'Market price: {market_price}, ma: {short_ma}, prev ma: {prev_short_ma}')
         # print('Diff:', diff_percent)
         if short_ma > long_ma:
