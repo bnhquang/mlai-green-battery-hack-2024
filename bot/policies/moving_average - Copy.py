@@ -27,12 +27,12 @@ class VerySimplePolicy(Policy):
         short_ma = np.mean(self.short)
         long_ma = np.mean(self.long)
         # print(f'Max: {max_moving_average}, Min: {min_moving_average}, Average: {moving_average}')
-
+        diff_percent = abs(short_ma - long_ma) / max(short_ma, long_ma)
         if short_ma > long_ma:
-            charge_kW = -internal_state['max_charge_rate']
+            charge_kW = -internal_state['max_charge_rate'] * diff_percent
             solar_kW_to_battery = 0
         else:
-            charge_kW = internal_state['max_charge_rate']
+            charge_kW = internal_state['max_charge_rate'] * diff_percent
             solar_kW_to_battery = external_state['pv_power']
 
         return solar_kW_to_battery, charge_kW
