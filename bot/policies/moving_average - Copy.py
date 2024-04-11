@@ -4,15 +4,16 @@ import numpy as np
 from policies.policy import Policy
 
 class VerySimplePolicy(Policy):
-    def __init__(self, short_window_size=8, long_window_size=16):
+    def __init__(self, short_window_size=6, long_window_size=12, historical_price_len=15):
         """
         Constructor for the MovingAveragePolicy.
 
         :param window_size: The number of past market prices to consider for the moving average (default: 5).
         """
         super().__init__()
-        self.short = deque([45, 45, 45], maxlen=short_window_size)
-        self.long = deque([45, 45, 45, 45, 45], maxlen=long_window_size)
+        self.short = deque([45 for i in range(short_window_size)], maxlen=short_window_size)
+        self.long = deque([45 for i in range(long_window_size)], maxlen=long_window_size)
+        self.historic_price = deque([45 for i in range(historical_price_len)], maxlen=historical_price_len)
         # historical_data = pd.read_csv('./data/validation_data.csv')
         # self.load_historical(historical_data[:10])
 
@@ -27,7 +28,9 @@ class VerySimplePolicy(Policy):
         short_ma = np.mean(self.short)
         long_ma = np.mean(self.long)
         # print(f'Max: {max_moving_average}, Min: {min_moving_average}, Average: {moving_average}')
-        diff_percent = abs(short_ma - long_ma) / max(short_ma, long_ma)
+        moving_average = np.mean(self.historic_price)
+        diff_percent = abs(moving_average - market_price) / abs(moving_average)
+        # print(diff_percent)
         if short_ma > long_ma:
             charge_kW = -internal_state['max_charge_rate'] * diff_percent
             solar_kW_to_battery = 0
