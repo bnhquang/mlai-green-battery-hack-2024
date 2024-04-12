@@ -4,7 +4,7 @@ import numpy as np
 from policies.policy import Policy
 
 class VerySimplePolicy(Policy):
-    def __init__(self, short_window_size=10, long_window_size=20, historical_price_len=15):
+    def __init__(self, short_window_size=8, long_window_size=16, historical_price_len=15):
         """
         Constructor for the MovingAveragePolicy.
 
@@ -21,7 +21,8 @@ class VerySimplePolicy(Policy):
 # 2.59 5-10 with short percent
 # 3.08 8-16 with short
 # 3.97 10-20 with long
-
+# 4.95 10-20 diff * 2
+# 4.56 10-20 expo 5
     def act(self, external_state, internal_state):
         market_price = external_state['price']
         # prev_short_ma = np.mean(self.short)
@@ -31,14 +32,14 @@ class VerySimplePolicy(Policy):
         long_ma = np.mean(self.long)
         # print(f'Max: {max_moving_average}, Min: {min_moving_average}, Average: {moving_average}')
         # moving_average = np.mean(self.historic_price)
-        diff_percent = abs(long_ma - market_price) / (abs(long_ma) + abs(market_price))
+        diff_percent = abs(abs(short_ma - long_ma) / ((short_ma + long_ma) / 2))
         # print(f'Market price: {market_price}, ma: {short_ma}, prev ma: {prev_short_ma}')
-        # print('Diff:', diff_percent)
+        print('Diff:', diff_percent)
         if short_ma > long_ma:
-            charge_kW = -internal_state['max_charge_rate'] * self.exponential_increase(diff_percent, 5)
+            charge_kW = -internal_state['max_charge_rate'] * self.exponential_increase(diff_percent, 2)
             solar_kW_to_battery = 0
         else:
-            charge_kW = internal_state['max_charge_rate'] * self.exponential_increase(diff_percent, 5)
+            charge_kW = internal_state['max_charge_rate'] * self.exponential_increase(diff_percent, 2)
             solar_kW_to_battery = external_state['pv_power']
 
         return solar_kW_to_battery, charge_kW
