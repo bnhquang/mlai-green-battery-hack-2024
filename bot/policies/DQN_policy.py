@@ -1,7 +1,7 @@
 import pandas as pd
 from collections import deque
 # import numpy as np
-import torch as torch
+import torch
 
 from policies.policy import Policy
 from DQN.DQN_Agent import DQN_Agent
