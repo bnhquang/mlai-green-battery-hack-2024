@@ -55,7 +55,8 @@ class VerySimplePolicy(Policy):
             charge_kW = -internal_state['max_charge_rate'] * self.exponential_increase(diff_percent, 8)
             solar_kW_to_battery = external_state['pv_power'] * (1 - self.exponential_increase(diff_percent, 8))
         else:
-            charge_kW = internal_state['max_charge_rate'] * self.exponential_increase(diff_percent, 2)
+            charge_kW = internal_state['max_charge_rate'] * self.exponential_increase(diff_percent, 3)
+            charge_kW = 0 if charge_kW < 1 else charge_kW
             solar_kW_to_battery = external_state['pv_power']
 
         return solar_kW_to_battery, charge_kW
