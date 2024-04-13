@@ -4,7 +4,7 @@ import numpy as np
 from policies.policy import Policy
 
 class VerySimplePolicy(Policy):
-    def __init__(self, short_window_size=110, long_window_size=120, historical_price_len=15):
+    def __init__(self, short_window_size=130, long_window_size=140, historical_price_len=15):
         """
         Constructor for the MovingAveragePolicy.
 
