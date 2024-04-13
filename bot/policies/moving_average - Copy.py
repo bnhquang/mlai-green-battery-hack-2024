@@ -31,6 +31,7 @@ class VerySimplePolicy(Policy):
 # 12.80 60-70 expo 8
 # 12.59 80-90 expo 10
 # 11.24 90-100 expo 9
+# 12.88 60-70 expo 7-7
     def act(self, external_state, internal_state):
         market_price = external_state['price']
         # prev_short_ma = np.mean(self.short)
@@ -44,10 +45,10 @@ class VerySimplePolicy(Policy):
         # print(f'Market price: {market_price}, ma: {short_ma}, prev ma: {prev_short_ma}')
         # print('Diff:', diff_percent)
         if short_ma > long_ma:
-            charge_kW = -internal_state['max_charge_rate'] * self.exponential_increase(diff_percent, 7)
-            solar_kW_to_battery = 0
+            charge_kW = -internal_state['max_charge_rate'] * self.exponential_increase(diff_percent, 8)
+            solar_kW_to_battery = external_state['pv_power'] * (1 - self.exponential_increase(diff_percent, 8))
         else:
-            charge_kW = internal_state['max_charge_rate'] * self.exponential_increase(diff_percent, 7)
+            charge_kW = internal_state['max_charge_rate'] * self.exponential_increase(diff_percent, 6)
             solar_kW_to_battery = external_state['pv_power']
 
         return solar_kW_to_battery, charge_kW
