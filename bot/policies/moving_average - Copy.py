@@ -14,8 +14,8 @@ class VerySimplePolicy(Policy):
         self.short = deque([45 for i in range(short_window_size)], maxlen=short_window_size)
         self.long = deque([45 for i in range(long_window_size)], maxlen=long_window_size)
         # self.historic_price = deque([45 for i in range(historical_price_len)], maxlen=historical_price_len)
-        # historical_data = pd.read_csv('./data/validation_data.csv')
-        # self.load_historical(historical_data[:20])
+        historical_data = pd.read_csv('./data/validation_data.csv')
+        self.load_historical(historical_data[:-100])
 
     """
     2.79 6-12 with short percent
