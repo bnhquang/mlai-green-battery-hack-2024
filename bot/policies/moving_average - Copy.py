@@ -42,7 +42,8 @@ class VerySimplePolicy(Policy):
     17.61 60-70 expo 8-6 thres 0-1.5
     17.71 60-70 expo 8-5 thres 0-1.5
     17.77 60-70 expo 8-6 thres 0-2.5
-    16.8 40-50 expo 8-8 thres 1-2.5
+    16.8 40-50 expo 8-8 thres 1-2.
+    19.18 60-70 expo 8-8 thres 1-2
     """
 
     def act(self, external_state, internal_state):
@@ -59,11 +60,11 @@ class VerySimplePolicy(Policy):
         # print('Diff:', diff_percent)
         if short_ma > long_ma:
             charge_kW = -internal_state['max_charge_rate'] * self.exponential_increase(diff_percent, 8)
-            charge_kW = 0 if charge_kW > -1 else charge_kW
+            charge_kW = 0 if charge_kW > -0.5 else charge_kW
             solar_kW_to_battery = external_state['pv_power'] * (1 - self.exponential_increase(diff_percent, 8))
         else:
             charge_kW = internal_state['max_charge_rate'] * self.exponential_increase(diff_percent, 8)
-            charge_kW = 0 if charge_kW < 2 else charge_kW
+            charge_kW = 0 if charge_kW < 1.5 else charge_kW
             solar_kW_to_battery = external_state['pv_power']
 
         return solar_kW_to_battery, charge_kW
