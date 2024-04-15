@@ -4,7 +4,7 @@ import numpy as np
 from policies.policy import Policy
 
 class VerySimplePolicy(Policy):
-    def __init__(self, short_window_size=20, long_window_size=40, historical_price_len=15):
+    def __init__(self, short_window_size=30, long_window_size=40, historical_price_len=15):
         """
         Constructor for the MovingAveragePolicy.
 
@@ -42,7 +42,7 @@ class VerySimplePolicy(Policy):
     17.61 60-70 expo 8-6 thres 0-1.5
     17.71 60-70 expo 8-5 thres 0-1.5
     17.77 60-70 expo 8-6 thres 0-2.5
-    17.10 40-50 expo 8-8 thres 1-2.5
+    16.8 40-50 expo 8-8 thres 1-2.5
     """
 
     def act(self, external_state, internal_state):
