@@ -4,7 +4,7 @@ import numpy as np
 from policies.policy import Policy
 
 class MARSI(Policy):
-    def __init__(self, short_window_size=60, long_window_size=70, rsi_size=14, rsi_thres=(70, 30)):
+    def __init__(self, short_window_size=60, long_window_size=70, rsi_size=5, rsi_thres=(70, 30)):
         """
         Constructor for the MovingAveragePolicy.
 
@@ -32,10 +32,9 @@ class MARSI(Policy):
         short_ma = price_series.rolling(window=self.short_window_size).mean().iloc[-1]
         long_ma = price_series.rolling(window=self.long_window_size).mean().iloc[-1]
         rsi = self.calculate_rsi(self.historic_price)
-        # print(rsi)
         # moving_average = np.mean(self.historic_price)
         diff_percent = abs(abs(short_ma - long_ma) / ((short_ma + long_ma) / 2))
-        # print(f'Market price: {market_price}, rsi: {rsi}')
+        print(f'Market price: {market_price}, rsi: {rsi}')
         # print('Diff:', diff_percent)
         if short_ma > long_ma:
             charge_kW = -internal_state['max_charge_rate'] * self.exponential_increase(diff_percent, 8)
