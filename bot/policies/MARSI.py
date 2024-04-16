@@ -4,7 +4,7 @@ import numpy as np
 from policies.policy import Policy
 
 class MARSI(Policy):
-    def __init__(self, short_window_size=60, long_window_size=70, rsi_size=5, rsi_thres=(40, 50)):
+    def __init__(self, short_window_size=60, long_window_size=70, rsi_size=10, rsi_thres=(50, 70)):
         """
         Constructor for the MovingAveragePolicy.
 
@@ -42,7 +42,7 @@ class MARSI(Policy):
             charge_kW = charge_kW if rsi >= self.rsi_thres[0] else 0
             solar_kW_to_battery = external_state['pv_power'] * (1 - self.exponential_increase(diff_percent, 8))
         else:
-            charge_kW = internal_state['max_charge_rate'] * self.exponential_increase(diff_percent, 6)
+            charge_kW = internal_state['max_charge_rate'] * self.exponential_increase(diff_percent, 8)
             charge_kW = charge_kW if rsi < self.rsi_thres[1] else 0
             solar_kW_to_battery = external_state['pv_power']
         # print(charge_kW)
