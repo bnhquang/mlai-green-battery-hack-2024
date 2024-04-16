@@ -4,7 +4,7 @@ import numpy as np
 from policies.policy import Policy
 
 class MARSI(Policy):
-    def __init__(self, short_window_size=60, long_window_size=120, rsi_size=14, rsi_thres=(30, 70)):
+    def __init__(self, short_window_size=60, long_window_size=120, rsi_size=14, rsi_thres=(40, 60), expo=(8, 5)):
         """
         Constructor for the MovingAveragePolicy.
 
@@ -15,6 +15,7 @@ class MARSI(Policy):
         self.long_window_size = long_window_size
         self.rsi_size = rsi_size
         self.rsi_thres = rsi_thres
+        self.expo = expo
         self.historic_price = deque([45 for i in range(long_window_size+10)], maxlen=long_window_size)
         # historical_data = pd.read_csv('./data/validation_data.csv')
         # self.load_historical(historical_data[:-100])
@@ -27,6 +28,8 @@ class MARSI(Policy):
     21.93 short_window_size=60, long_window_size=70, rsi_size=14, rsi_thres=(40, 80)
     22.73 short_window_size=60, long_window_size=70, rsi_size=14, rsi_thres=(30, 78)
     22.75 short_window_size=60, long_window_size=70, rsi_size=14, rsi_thres=(30, 74)
+    23.20 short_window_size=60, long_window_size=120, rsi_size=14, rsi_thres=(30, 70)
+     short_window_size=60, long_window_size=120, rsi_size=14, rsi_thres=(40, 60), expo=(8, 5)
     """
 
     def act(self, external_state, internal_state):
@@ -42,11 +45,11 @@ class MARSI(Policy):
         print(f'Market price: {market_price}, rsi: {rsi}')
         # print('Diff:', diff_percent)
         if short_ma > long_ma:
-            charge_kW = -internal_state['max_charge_rate'] * self.exponential_increase(diff_percent, 8)
+            charge_kW = -internal_state['max_charge_rate'] * self.exponential_increase(diff_percent, self.expo[0])
             charge_kW = charge_kW if rsi >= self.rsi_thres[0] else 0
-            solar_kW_to_battery = external_state['pv_power'] * (1 - self.exponential_increase(diff_percent, 8))
+            solar_kW_to_battery = external_state['pv_power'] * (1 - self.exponential_increase(diff_percent, self.expo[0]))
         else:
-            charge_kW = internal_state['max_charge_rate'] * self.exponential_increase(diff_percent, 8)
+            charge_kW = internal_state['max_charge_rate'] * self.exponential_increase(diff_percent, self.expo[1])
             charge_kW = charge_kW if rsi < self.rsi_thres[1] else 0
             solar_kW_to_battery = external_state['pv_power']
         # print(charge_kW)
