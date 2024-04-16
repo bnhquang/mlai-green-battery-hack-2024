@@ -1,6 +1,6 @@
 {
   "policy": {
-    "class_name": "VerySimplePolicy",
+    "class_name": "MARSI",
     "parameters": {
     }
   }
