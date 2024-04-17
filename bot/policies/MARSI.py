@@ -4,7 +4,7 @@ import numpy as np
 from policies.policy import Policy
 
 class MARSI(Policy):
-    def __init__(self, short_window_size=30, long_window_size=288, rsi_size=144, rsi_thres=(40, 60), expo=(9, 3)):
+    def __init__(self, short_window_size=40, long_window_size=288, rsi_size=144, rsi_thres=(45, 60), expo=(10, 3)):
         """
         Constructor for the MovingAveragePolicy.
 
@@ -21,7 +21,6 @@ class MARSI(Policy):
         # self.load_historical(historical_data[:-100])
 
     """
-    21.93 short_window_size=60, long_window_size=70, rsi_size=14, rsi_thres=(40, 80)
     22.73 short_window_size=60, long_window_size=70, rsi_size=14, rsi_thres=(30, 78)
     22.75 short_window_size=60, long_window_size=70, rsi_size=14, rsi_thres=(30, 74)
     23.20 short_window_size=60, long_window_size=120, rsi_size=14, rsi_thres=(30, 70)
@@ -40,6 +39,8 @@ class MARSI(Policy):
     28.47 short_window_size=20, long_window_size=180, rsi_size=14, rsi_thres=(35, 60), expo=(9, 3)
     27.29 short_window_size=30, long_window_size=180, rsi_size=14, rsi_thres=(35, 60), expo=(9, 3)
     28.30 short_window_size=30, long_window_size=288, rsi_size=14, rsi_thres=(35, 60), expo=(9, 3)
+    30.32 short_window_size=30, long_window_size=288, rsi_size=144, rsi_thres=(40, 60), expo=(9, 3)
+    short_window_size=40, long_window_size=288, rsi_size=144, rsi_thres=(45, 60), expo=(10, 3)
     """
 
     def act(self, external_state, internal_state):
@@ -52,7 +53,7 @@ class MARSI(Policy):
         rsi = self.calculate_rsi(self.historic_price)
         # moving_average = np.mean(self.historic_price)
         diff_percent = abs(abs(short_ma - long_ma) / ((short_ma + long_ma) / 2))
-        print(f'Market price: {market_price}, rsi: {rsi}')
+        # print(f'Market price: {market_price}, rsi: {rsi}')
         # print('Diff:', diff_percent)
         if short_ma > long_ma:
             charge_kW = -internal_state['max_charge_rate'] * self.exponential_increase(diff_percent, self.expo[0])
