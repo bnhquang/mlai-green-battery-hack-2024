@@ -4,7 +4,7 @@ import numpy as np
 from policies.policy import Policy
 
 class MARSI(Policy):
-    def __init__(self, short_window_size=5, long_window_size=144, rsi_size=144, rsi_thres=(40, 60), expo=(9, 2)):
+    def __init__(self, short_window_size=5, long_window_size=288, rsi_size=144, rsi_thres=(40, 60), expo=(9, 2)):
         """
         Constructor for the MovingAveragePolicy.
 
