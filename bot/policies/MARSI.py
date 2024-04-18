@@ -4,7 +4,7 @@ import numpy as np
 from policies.policy import Policy
 
 class MARSI(Policy):
-    def __init__(self, short_window_size=5, long_window_size=288, rsi_size=144, rsi_thres=(40, 60), expo=(9, 2)):
+    def __init__(self, short_window_size=5, long_window_size=72, rsi_size=144, rsi_thres=(40, 60), expo=(9, 2)):
         """
         Constructor for the MovingAveragePolicy.
 
@@ -21,19 +21,6 @@ class MARSI(Policy):
         # self.load_historical(historical_data[:-100])
 
     """
-    22.73 short_window_size=60, long_window_size=70, rsi_size=14, rsi_thres=(30, 78)
-    22.75 short_window_size=60, long_window_size=70, rsi_size=14, rsi_thres=(30, 74)
-    23.20 short_window_size=60, long_window_size=120, rsi_size=14, rsi_thres=(30, 70)
-    24.16 short_window_size=60, long_window_size=120, rsi_size=14, rsi_thres=(40, 60), expo=(8, 5)
-    19.90 short_window_size=70, long_window_size=140, rsi_size=14, rsi_thres=(40, 60), expo=(8, 4)
-    19.16 short_window_size=80, long_window_size=140, rsi_size=14, rsi_thres=(40, 50), expo=(9, 4)
-    27.46 short_window_size=50, long_window_size=120, rsi_size=14, rsi_thres=(40, 50), expo=(10, 4)
-    27.30 short_window_size=50, long_window_size=120, rsi_size=14, rsi_thres=(35, 40), expo=(10, 4)
-    28.13 short_window_size=40, long_window_size=120, rsi_size=14, rsi_thres=(35, 60), expo=(10, 4)
-    28.42 short_window_size=30, long_window_size=120, rsi_size=14, rsi_thres=(35, 60), expo=(10, 4)
-    27.84 short_window_size=20, long_window_size=120, rsi_size=14, rsi_thres=(35, 60), expo=(10, 4)
-    28.43 short_window_size=20, long_window_size=144, rsi_size=14, rsi_thres=(35, 60), expo=(10, 4)
-    28.36 short_window_size=30, long_window_size=144, rsi_size=14, rsi_thres=(35, 60), expo=(9, 3)
     26.79 short_window_size=40, long_window_size=144, rsi_size=14, rsi_thres=(35, 60), expo=(9, 3)
     29.29 short_window_size=20, long_window_size=144, rsi_size=14, rsi_thres=(35, 60), expo=(9, 3)
     28.47 short_window_size=20, long_window_size=180, rsi_size=14, rsi_thres=(35, 60), expo=(9, 3)
@@ -51,6 +38,8 @@ class MARSI(Policy):
     61.34 short_window_size=10, long_window_size=288, rsi_size=144, rsi_thres=(40, 60), expo=(10, 2)
     61.62 short_window_size=10, long_window_size=288, rsi_size=144, rsi_thres=(40, 60), expo=(11, 1)
     61.56 short_window_size=10, long_window_size=288, rsi_size=144, rsi_thres=(40, 60), expo=(13, 2)
+    61.26 short_window_size=5, long_window_size=288, rsi_size=144, rsi_thres=(40, 60), expo=(9, 2)
+    short_window_size=5, long_window_size=72, rsi_size=144, rsi_thres=(40, 60), expo=(9, 2)
     """
 
     def act(self, external_state, internal_state):
