@@ -4,7 +4,7 @@ import numpy as np
 from policies.policy import Policy
 
 class MARSI(Policy):
-    def __init__(self, short_window_size=10, long_window_size=288, rsi_size=144, rsi_thres=(40, 50), expo=(9, 0.4)):
+    def __init__(self, short_window_size=10, long_window_size=288, rsi_size=14, rsi_thres=(50, 30), expo=(8, 0.5)):
         """
         Constructor for the MovingAveragePolicy.
 
@@ -41,7 +41,7 @@ class MARSI(Policy):
     64.06 short_window_size=10, long_window_size=288, rsi_size=144, rsi_thres=(40, 60), expo=(8, 0.9)
     63.31 short_window_size=10, long_window_size=288, rsi_size=144, rsi_thres=(40, 60), expo=(6, 0.9)
     64.26 short_window_size=10, long_window_size=288, rsi_size=144, rsi_thres=(40, 60), expo=(8, 0.5)
-    short_window_size=10, long_window_size=288, rsi_size=144, rsi_thres=(40, 50), expo=(9, 0.4)
+    short_window_size=10, long_window_size=288, rsi_size=14, rsi_thres=(50, 30), expo=(8, 0.5)
     """
 
     def act(self, external_state, internal_state):
