@@ -4,14 +4,16 @@ from collections import deque
 from policies.policy import Policy
 
 class BollingerBandsPolicy(Policy):
-    def __init__(self, window_size=72, num_std_dev=1):
+    def __init__(self, window_size=144, num_std_dev=0.5, expo=(12, 1)):
         super().__init__()
         self.window_size = window_size
         self.num_std_dev = num_std_dev
+        self.expo = expo
         self.prices = deque([45 for i in range(window_size)], maxlen=window_size)
 
     '''
     44.77 window_size=144, num_std_dev=2 not sensitive enough
+    window_size=144, num_std_dev=0.5, expo=(12, 1)
     '''
 
 
@@ -30,12 +32,12 @@ class BollingerBandsPolicy(Policy):
         diff_percent = abs(abs(current_price - avg) / ((avg + current_price) / 2))
         # print(diff_percent)
 
-        if avg > upper_band:
-            charge_kW = -max_charge_rate * self.exponential_increase(diff_percent, 8)
-            solar_kW_to_battery = pv_power * (1 - self.exponential_increase(diff_percent, 8))
-        elif avg < lower_band:
-            charge_kW = max_charge_rate * self.exponential_increase(diff_percent, 1)
-            solar_kW_to_battery = pv_power * self.exponential_increase(diff_percent, 1)
+        if current_price > upper_band:
+            charge_kW = -max_charge_rate * self.exponential_increase(diff_percent, self.expo[0])
+            solar_kW_to_battery = pv_power * (1 - self.exponential_increase(diff_percent, self.expo[0]))
+        elif current_price < lower_band:
+            charge_kW = max_charge_rate * self.exponential_increase(diff_percent, self.expo[1])
+            solar_kW_to_battery = pv_power
         else:
             charge_kW = 0
             solar_kW_to_battery = pv_power
