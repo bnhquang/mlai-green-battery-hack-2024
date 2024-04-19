@@ -10,6 +10,11 @@ class BollingerBandsPolicy(Policy):
         self.num_std_dev = num_std_dev
         self.prices = deque([45 for i in range(window_size)], maxlen=window_size)
 
+    '''
+    window_size=144, num_std_dev=2
+    '''
+
+
     def act(self, external_state, internal_state):
         current_price = external_state['price']
         pv_power = external_state['pv_power']
