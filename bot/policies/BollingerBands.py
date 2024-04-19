@@ -4,14 +4,14 @@ from collections import deque
 from policies.policy import Policy
 
 class BollingerBandsPolicy(Policy):
-    def __init__(self, window_size=144, num_std_dev=2):
+    def __init__(self, window_size=144, num_std_dev=1):
         super().__init__()
         self.window_size = window_size
         self.num_std_dev = num_std_dev
         self.prices = deque([45 for i in range(window_size)], maxlen=window_size)
 
     '''
-    window_size=144, num_std_dev=2
+    44.77 window_size=144, num_std_dev=2 not sensitive enough
     '''
 
 
