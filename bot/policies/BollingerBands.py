@@ -4,7 +4,7 @@ from collections import deque
 from policies.policy import Policy
 
 class BollingerBandsPolicy(Policy):
-    def __init__(self, window_size=144, num_std_dev=1):
+    def __init__(self, window_size=72, num_std_dev=1):
         super().__init__()
         self.window_size = window_size
         self.num_std_dev = num_std_dev
@@ -30,10 +30,10 @@ class BollingerBandsPolicy(Policy):
         diff_percent = abs(abs(current_price - avg) / ((avg + current_price) / 2))
         # print(diff_percent)
 
-        if current_price > upper_band:
+        if avg > upper_band:
             charge_kW = -max_charge_rate * self.exponential_increase(diff_percent, 8)
             solar_kW_to_battery = pv_power * (1 - self.exponential_increase(diff_percent, 8))
-        elif current_price < lower_band:
+        elif avg < lower_band:
             charge_kW = max_charge_rate * self.exponential_increase(diff_percent, 1)
             solar_kW_to_battery = pv_power * self.exponential_increase(diff_percent, 1)
         else:
