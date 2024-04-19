@@ -4,7 +4,7 @@ from collections import deque
 from policies.policy import Policy
 
 class BollingerBandsPolicy(Policy):
-    def __init__(self, window_size=144, num_std_dev=0.5, expo=(12, 1)):
+    def __init__(self, window_size=72, num_std_dev=0.5, expo=(12, 1)):
         super().__init__()
         self.window_size = window_size
         self.num_std_dev = num_std_dev
@@ -13,7 +13,8 @@ class BollingerBandsPolicy(Policy):
 
     '''
     44.77 window_size=144, num_std_dev=2 not sensitive enough
-    window_size=144, num_std_dev=0.5, expo=(12, 1)
+    63.08 window_size=144, num_std_dev=0.5, expo=(12, 1)
+    window_size=72, num_std_dev=0.5, expo=(12, 1)
     '''
 
 
