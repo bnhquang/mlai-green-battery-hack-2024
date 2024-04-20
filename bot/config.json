@@ -1,6 +1,6 @@
 {
   "policy": {
-    "class_name": "MARSI",
+    "class_name": "BollingerBandsPolicy",
     "parameters": {
     }
   }
