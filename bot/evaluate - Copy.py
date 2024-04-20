@@ -149,7 +149,7 @@ def perform_eval(args):
 
 def main():
     parser = argparse.ArgumentParser(description='Evaluate a single energy market strategy.')
-    parser.add_argument('--plot', action='store_true', help='Plot the results of the main trial.', default=False)
+    parser.add_argument('--plot', action='store_true', help='Plot the results of the main trial.', default=True)
     parser.add_argument('--present_index', type=int, default=0, help='Index to split the historical data from the data which will be used for the evaluation.')
     parser.add_argument('--seed', type=int, default=42, help='Seed for randomness')
     parser.add_argument('--data', type=str, default='./data/validation_data.csv', help='Path to the market data csv file')
