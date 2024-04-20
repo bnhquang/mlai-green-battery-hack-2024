@@ -79,6 +79,9 @@ class BatteryEnv:
 
     def initial_state(self):
         assert self.current_step == 0
+        initial_data = self.market_data.iloc[self.current_step]
+        current_time = self.extract_time(initial_data[TIMESTAMP_KEY])
+
 
         return self.market_data.iloc[self.current_step], self.get_info(0)
     
@@ -92,14 +95,17 @@ class BatteryEnv:
     def step(self, charge_kW: float, solar_kW_to_battery:int, total_solar_kW:int) -> Tuple[pd.Series, dict]:
         if self.current_step >= len(self.market_data):
             return None, None
+        
+        current_data = self.market_data.iloc[self.current_step]
         market_price_mWh = self.market_data.iloc[self.current_step][PRICE_KEY]
+        current_time = self.extract_time(current_data[TIMESTAMP_KEY])
 
         kW_currently_charging, solar_profit_delta = self.process_solar(solar_kW_to_battery, total_solar_kW, market_price_mWh)
 
         max_charge_kW = self.battery.max_charge_rate_kW - kW_currently_charging
         battery_profit_delta = self.charge_discharge(min(charge_kW, max_charge_kW), market_price_mWh)
         
-        external_state = self.get_info(battery_profit_delta + solar_profit_delta)
+        external_state = self.get_info(battery_profit_delta + solar_profit_delta, current_time)
 
         self.current_step += 1
         if self.current_step >= len(self.market_data):
@@ -128,12 +134,26 @@ class BatteryEnv:
             kWh_to_grid = self.battery.discharge_at(-charge_kW)
             return self.kWh_to_profit(kWh_to_grid, spot_price_mWh)
         return 0
+    
+    def extract_time(self, timestamp):
+        """
+        Extracts the time from the timestamp.
 
-    def get_info(self, profit_delta: float = 0) -> dict:
+        :param timestamp: The timestamp from which to extract the time.
+        :return: datetime.time object representing the time of day.
+        """
+        # Parse the timestamp if it's a string, otherwise assume it's already a datetime object
+        if isinstance(timestamp, str):
+            timestamp = pd.to_datetime(timestamp)
+        return timestamp.time()  # Returns just the time component
+
+
+    def get_info(self, profit_delta: float = 0, current_time=None) -> dict:
         """
         Return a dictionary containing relevant information for the agent.
 
         :param profit_delta: The change in profit from the last action (default: 0).
+        :param current_time: Current time extracted from the timestamp.
         :return: A dictionary containing information about the current state of the environment.
         """
         self.total_profit += profit_delta
@@ -143,5 +163,6 @@ class BatteryEnv:
             'profit_delta': profit_delta,
             'battery_soc': self.battery.state_of_charge_kWh,
             'max_charge_rate': self.battery.max_charge_rate_kW,
-            'remaining_steps': remaining_steps
+            'remaining_steps': remaining_steps,
+            'current_time': current_time
         }
