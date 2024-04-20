@@ -3,8 +3,8 @@ import numpy as np
 from collections import deque
 from policies.policy import Policy
 
-class BollingerBandsPolicy(Policy):
-    def __init__(self, window_size=250, num_std_dev=0.1, expo=(15, 0.4)):
+class SolarTrading(Policy):
+    def __init__(self, window_size=274, num_std_dev=0.1, expo=(30, 1)):
         super().__init__()
         self.window_size = window_size
         self.num_std_dev = num_std_dev
@@ -12,7 +12,6 @@ class BollingerBandsPolicy(Policy):
         self.prices = deque([45 for i in range(window_size)], maxlen=window_size)
 
     '''
-    44.77 window_size=144, num_std_dev=2 not sensitive enough
     63.08 window_size=144, num_std_dev=0.5, expo=(12, 1)
     52.34 window_size=72, num_std_dev=0.5, expo=(12, 1)
     62.45 window_size=288, num_std_dev=0.5, expo=(12, 1)
@@ -20,7 +19,11 @@ class BollingerBandsPolicy(Policy):
     65.62 window_size=288, num_std_dev=0.4, expo=(12, 0.5)
     64.46 window_size=144, num_std_dev=0.4, expo=(12, 0.5)
     64.34 window_size=288, num_std_dev=0.5, expo=(15, 0.4)
-    window_size=250, num_std_dev=0.1, expo=(15, 0.4)
+    64.75 window_size=250, num_std_dev=0.1, expo=(15, 0.4)
+    65.61 window_size=288, num_std_dev=0.4, expo=(15, 0.3)
+    66.56 window_size=275, num_std_dev=0.1, expo=(15, 0.4)
+    67.02 window_size=274, num_std_dev=0.1, expo=(15, 1)
+    window_size=274, num_std_dev=0.1, expo=(30, 1)
     '''
 
 
