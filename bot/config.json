@@ -1,6 +1,6 @@
 {
   "policy": {
-    "class_name": "BollingerBandsPolicy",
+    "class_name": "SolarTrading",
     "parameters": {
     }
   }
