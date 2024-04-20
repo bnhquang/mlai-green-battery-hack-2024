@@ -200,8 +200,10 @@ def perform_eval(args):
     mean_combined_profit = total_profits[-1] + np.sum(rundown_profit_deltas)
 
     # Set up the ranges for the grid search
-    window_size_options = range(50, 350, 50)  # Example: from 50 to 300, step by 50
-    num_std_dev_options = np.arange(0.1, 1.1, 0.2)  # Example: from 0.1 to 1.0, step by 0.2
+    window_size_options = range(275, 276, 1)  # Example: from 50 to 300, step by 50
+    num_std_dev_options = np.arange(0.1, 0.2, 0.1)  # Example: from 0.1 to 1.0, step by 0.2
+    sec_expo_num = np.arange(1, 1.1, 0.1)
+    first_expo_num = np.arange(15, 100, 5)
 
     # Placeholder for the best parameter combination and its performance
     best_params = None
@@ -212,40 +214,43 @@ def perform_eval(args):
     # Loop over all combinations of hyperparameters for the grid search
     for window_size in window_size_options:
         for num_std_dev in num_std_dev_options:
-            # Reset the environment before the trial starts
-            battery_environment.reset()
-
+            for sec_expo_num in sec_expo_num:
+                for first_expo_num in first_expo_num:
             
-            # Create new policy instance with current grid search parameters
-            current_policy_params = {'window_size': window_size, 'num_std_dev': num_std_dev}
-            # Merge with other parameters that might be provided through command line or config
-            combined_params = {**policy_config.get('parameters', {}), **current_policy_params}
+                    # Reset the environment before the trial starts
+                    battery_environment.reset()
 
-            policy = policy_class(**combined_params)
-            # Load historical data to the policy (if necessary)
-            policy.load_historical(historical_data)
-            # Run the trial with the current policy
-            trial_data = run_trial(battery_environment, policy)
-            # # Calculate the total profit for this trial
-            # total_profit = trial_data['profits'][-1] + np.sum(trial_data['rundown_profit_deltas'])
+                    
+                    # Create new policy instance with current grid search parameters
+                    current_policy_params = {'window_size': window_size, 'num_std_dev': num_std_dev, 'expo': (first_expo_num, sec_expo_num)}
+                    # Merge with other parameters that might be provided through command line or config
+                    combined_params = {**policy_config.get('parameters', {}), **current_policy_params}
 
-            total_profits = trial_data['profits']
-            rundown_profit_deltas = trial_data['rundown_profit_deltas']
+                    policy = policy_class(**combined_params)
+                    # Load historical data to the policy (if necessary)
+                    policy.load_historical(historical_data)
+                    # Run the trial with the current policy
+                    trial_data = run_trial(battery_environment, policy)
+                    # # Calculate the total profit for this trial
+                    # total_profit = trial_data['profits'][-1] + np.sum(trial_data['rundown_profit_deltas'])
 
-            mean_profit = float(np.mean(total_profits))
-            std_profit = float(np.std(total_profits))
+                    total_profits = trial_data['profits']
+                    rundown_profit_deltas = trial_data['rundown_profit_deltas']
 
-            mean_combined_profit = total_profits[-1] + np.sum(rundown_profit_deltas)
+                    mean_profit = float(np.mean(total_profits))
+                    std_profit = float(np.std(total_profits))
+
+                    mean_combined_profit = total_profits[-1] + np.sum(rundown_profit_deltas)
 
 
-            print(f"Window Size: {window_size}, Num Std Dev: {num_std_dev}, Average profit ($): {mean_profit:.2f} ± {std_profit:.2f}, Average profit inc rundown ($): {mean_combined_profit:.2f}")
-            
-            # Check if the current combination is better than what we have seen so far
-            if mean_profit > best_profit:
-                best_profit = mean_profit
-                best_params = {'window_size': window_size, 'num_std_dev': num_std_dev}
-                best_trial_data = trial_data
-                best_std_dev = np.std(trial_data['profits'])
+                    print(f"Window Size: {window_size}, Num Std Dev: {num_std_dev}, First Expo Number: {first_expo_num}, Second Expo Number: {sec_expo_num}, Average profit ($): {mean_profit:.2f} ± {std_profit:.2f}, Average profit inc rundown ($): {mean_combined_profit:.2f}")
+                    
+                    # Check if the current combination is better than what we have seen so far
+                    if mean_profit > best_profit:
+                        best_profit = mean_profit
+                        best_params = {'window_size': window_size, 'num_std_dev': num_std_dev}
+                        best_trial_data = trial_data
+                        best_std_dev = np.std(trial_data['profits'])
 
     # Print out the best parameters and the profit achieved with them
     print(f"Best Parameters: {best_params}")
