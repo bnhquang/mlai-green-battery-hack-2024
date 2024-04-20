@@ -8,8 +8,11 @@ import numpy as np
 import json
 
 from policies import policy_classes
-from environment import BatteryEnv, PRICE_KEY, TIMESTAMP_KEY
+from environmentcopy import BatteryEnv, PRICE_KEY, TIMESTAMP_KEY
 from plotting import plot_results
+
+print("Current Working Directory:", os.getcwd())
+
 
 def float_or_none(value):
     if value.lower() == 'none':
@@ -83,13 +86,77 @@ def parse_parameters(params_list):
         params[key] = eval(value)
     return params
 
+# def perform_eval(args):
+#     start = time.time()
+
+#     if args.class_name:
+#         policy_config = {'class_name': args.class_name, 'parameters': parse_parameters(args.param)}
+#     else:
+#         policy_config = load_config("./bot/config.json")
+
+#     policy_class = policy_classes[policy_config['class_name']]
+    
+#     external_states = pd.read_csv(args.data)
+#     if args.output_file:
+#         output_file = args.output_file
+#     else:
+#         results_dir = './results'
+#         os.makedirs(results_dir, exist_ok=True)
+#         output_file = os.path.join(results_dir, f'{datetime.now().strftime("%Y%m%d_%H%M%S")}_{policy_config["class_name"]}.json')
+
+#     initial_profit = args.initial_profit if 'initial_profit' in args and args.initial_profit is not None else 0
+#     initial_soc = args.initial_soc if 'initial_soc' in args and args.initial_profit is not None else 7.5
+
+#     set_seed(args.seed)
+#     start_step = args.present_index
+
+#     historical_data = external_states.iloc[:start_step]
+#     future_data = external_states.iloc[start_step:]
+
+#     battery_environment = BatteryEnv(
+#         data=future_data,
+#         initial_charge_kWh=initial_soc,
+#         initial_profit=initial_profit
+#     )
+
+#     policy = policy_class(**policy_config.get('parameters', {}))
+#     policy.load_historical(historical_data)
+#     trial_data = run_trial(battery_environment, policy)
+
+#     total_profits = trial_data['profits']
+#     rundown_profit_deltas = trial_data['rundown_profit_deltas']
+
+#     mean_profit = float(np.mean(total_profits))
+#     std_profit = float(np.std(total_profits))
+
+#     mean_combined_profit = total_profits[-1] + np.sum(rundown_profit_deltas)
+
+#     outcome = {
+#         'class_name': policy_config['class_name'],
+#         'parameters': policy_config.get('parameters', {}),
+#         'mean_profit': mean_profit,
+#         'std_profit': std_profit,
+#         'score': mean_combined_profit,
+#         'main_trial': trial_data,
+#         'seconds_elapsed': time.time() - start 
+#     }
+
+#     print(f'Average profit ($): {mean_profit:.2f} ± {std_profit:.2f}')
+#     print(f'Average profit inc rundown ($): {mean_combined_profit:.2f}')
+
+#     with open(output_file, 'w') as file:
+#         json.dump(outcome, file, indent=2)
+
+#     if args.plot:
+#         plot_results(trial_data['profits'], trial_data['market_prices'], trial_data['socs'], trial_data['actions'])
+
 def perform_eval(args):
     start = time.time()
 
     if args.class_name:
         policy_config = {'class_name': args.class_name, 'parameters': parse_parameters(args.param)}
     else:
-        policy_config = load_config('./config.json')
+        policy_config = load_config("./bot/config.json")
 
     policy_class = policy_classes[policy_config['class_name']]
     
@@ -115,6 +182,10 @@ def perform_eval(args):
         initial_charge_kWh=initial_soc,
         initial_profit=initial_profit
     )
+    
+    # Reset the environment before the trial starts
+    battery_environment.reset()
+
 
     policy = policy_class(**policy_config.get('parameters', {}))
     policy.load_historical(historical_data)
@@ -128,6 +199,59 @@ def perform_eval(args):
 
     mean_combined_profit = total_profits[-1] + np.sum(rundown_profit_deltas)
 
+    # Set up the ranges for the grid search
+    window_size_options = range(50, 350, 50)  # Example: from 50 to 300, step by 50
+    num_std_dev_options = np.arange(0.1, 1.1, 0.2)  # Example: from 0.1 to 1.0, step by 0.2
+
+    # Placeholder for the best parameter combination and its performance
+    best_params = None
+    best_profit = -np.inf
+    best_std_dev = None
+    best_trial_data = None
+
+    # Loop over all combinations of hyperparameters for the grid search
+    for window_size in window_size_options:
+        for num_std_dev in num_std_dev_options:
+            # Reset the environment before the trial starts
+            battery_environment.reset()
+
+            
+            # Create new policy instance with current grid search parameters
+            current_policy_params = {'window_size': window_size, 'num_std_dev': num_std_dev}
+            # Merge with other parameters that might be provided through command line or config
+            combined_params = {**policy_config.get('parameters', {}), **current_policy_params}
+
+            policy = policy_class(**combined_params)
+            # Load historical data to the policy (if necessary)
+            policy.load_historical(historical_data)
+            # Run the trial with the current policy
+            trial_data = run_trial(battery_environment, policy)
+            # # Calculate the total profit for this trial
+            # total_profit = trial_data['profits'][-1] + np.sum(trial_data['rundown_profit_deltas'])
+
+            total_profits = trial_data['profits']
+            rundown_profit_deltas = trial_data['rundown_profit_deltas']
+
+            mean_profit = float(np.mean(total_profits))
+            std_profit = float(np.std(total_profits))
+
+            mean_combined_profit = total_profits[-1] + np.sum(rundown_profit_deltas)
+
+
+            print(f"Window Size: {window_size}, Num Std Dev: {num_std_dev}, Average profit ($): {mean_profit:.2f} ± {std_profit:.2f}, Average profit inc rundown ($): {mean_combined_profit:.2f}")
+            
+            # Check if the current combination is better than what we have seen so far
+            if mean_profit > best_profit:
+                best_profit = mean_profit
+                best_params = {'window_size': window_size, 'num_std_dev': num_std_dev}
+                best_trial_data = trial_data
+                best_std_dev = np.std(trial_data['profits'])
+
+    # Print out the best parameters and the profit achieved with them
+    print(f"Best Parameters: {best_params}")
+    print(f"Best Profit: {best_profit:.2f}")
+
+
     outcome = {
         'class_name': policy_config['class_name'],
         'parameters': policy_config.get('parameters', {}),
@@ -137,9 +261,10 @@ def perform_eval(args):
         'main_trial': trial_data,
         'seconds_elapsed': time.time() - start 
     }
+    
 
-    print(f'Average profit ($): {mean_profit:.2f} ± {std_profit:.2f}')
-    print(f'Average profit inc rundown ($): {mean_combined_profit:.2f}')
+    # print(f'Average profit ($): {mean_profit:.2f} ± {std_profit:.2f}')
+    # print(f'Average profit inc rundown ($): {mean_combined_profit:.2f}')
 
     with open(output_file, 'w') as file:
         json.dump(outcome, file, indent=2)
@@ -147,12 +272,13 @@ def perform_eval(args):
     if args.plot:
         plot_results(trial_data['profits'], trial_data['market_prices'], trial_data['socs'], trial_data['actions'])
 
+
 def main():
     parser = argparse.ArgumentParser(description='Evaluate a single energy market strategy.')
     parser.add_argument('--plot', action='store_true', help='Plot the results of the main trial.', default=True)
     parser.add_argument('--present_index', type=int, default=0, help='Index to split the historical data from the data which will be used for the evaluation.')
     parser.add_argument('--seed', type=int, default=42, help='Seed for randomness')
-    parser.add_argument('--data', type=str, default='./data/validation_data.csv', help='Path to the market data csv file')
+    parser.add_argument('--data', type=str, default='./bot/data/validation_data.csv', help='Path to the market data csv file')
     parser.add_argument('--class_name', type=str, help='Policy class name. If not provided, the config.json policy will be used.')
     parser.add_argument('--output_file', type=str, help='File to save all the submission outputs to.', default=None)
     parser.add_argument('--param', action='append', help='Policy parameters as key=value pairs', default=[])

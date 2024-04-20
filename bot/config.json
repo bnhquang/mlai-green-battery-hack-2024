@@ -1,7 +1,0 @@
-{
-  "policy": {
-    "class_name": "BollingerBandsPolicy",
-    "parameters": {
-    }
-  }
-}
