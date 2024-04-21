@@ -1,6 +1,6 @@
 {
     "policy": {
-        "class_name": "SolarTrading",
-        "parameters": {}
+      "class_name": "DQN_Policy",
+      "parameters": {}
     }
 }

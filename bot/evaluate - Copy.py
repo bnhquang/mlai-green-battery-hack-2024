@@ -160,7 +160,7 @@ def parse_parameters(params_list):
     if args.class_name:
         policy_config = {'class_name': args.class_name, 'parameters': parse_parameters(args.param)}
     else:
-        policy_config = load_config("./bot/config.json")
+        policy_config = load_config("./config.json")
 
     policy_class = policy_classes[policy_config['class_name']]
     
@@ -402,9 +402,9 @@ def perform_eval(args):
 def main():
     parser = argparse.ArgumentParser(description='Evaluate a single energy market strategy.')
     parser.add_argument('--plot', action='store_true', help='Plot the results of the main trial.', default=True)
-    parser.add_argument('--present_index', type=int, default=0, help='Index to split the historical data from the data which will be used for the evaluation.')
+    parser.add_argument('--present_index', type=int, default=300, help='Index to split the historical data from the data which will be used for the evaluation.')
     parser.add_argument('--seed', type=int, default=42, help='Seed for randomness')
-    parser.add_argument('--data', type=str, default='./bot/data/validation_data.csv', help='Path to the market data csv file')
+    parser.add_argument('--data', type=str, default='data/validation_data.csv', help='Path to the market data csv file')
     parser.add_argument('--class_name', type=str, help='Policy class name. If not provided, the config.json policy will be used.')
     parser.add_argument('--output_file', type=str, help='File to save all the submission outputs to.', default=None)
     parser.add_argument('--param', action='append', help='Policy parameters as key=value pairs', default=[])
