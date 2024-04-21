@@ -21,4 +21,3 @@ flask==3.0.
 pytest
 torch
 pandas_ta
-pickle
