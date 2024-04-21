@@ -4,7 +4,7 @@ from collections import deque
 from policies.policy import Policy
 
 class SolarTrading(Policy):
-    def __init__(self, window_size=282, expo=(52.657237600393806, 16.520328806070264), num_std_dev=0.22005693825218395):
+    def __init__(self, window_size=282, num_std_dev=0.22, expo=(52, 1)):
         super().__init__()
         self.window_size = window_size
         self.num_std_dev = num_std_dev

@@ -1,6 +1,6 @@
 {
     "policy": {
-        "class_name": "SolarTradingV4",
+        "class_name": "SolarTrading",
         "parameters": {}
     }
 }
