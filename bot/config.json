@@ -1,7 +1,6 @@
 {
-  "policy": {
-    "class_name": "SolarTrading",
-    "parameters": {
+    "policy": {
+        "class_name": "SolarTrading2",
+        "parameters": {}
     }
-  }
 }
