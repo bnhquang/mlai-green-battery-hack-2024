@@ -20,3 +20,5 @@ click==8.1.7
 flask==3.0.
 pytest
 torch
+pandas_ta
+pickle
