@@ -3,11 +3,11 @@ import numpy as np
 from collections import deque
 from policies.policy import Policy
 
-class SolarTrading(Policy):
-    def __init__(self, window_size=282, expo=(52.657237600393806, 16.520328806070264), num_std_dev=0.22005693825218395):
+class SolarTradingV3(Policy):
+    def __init__(self, window_size=282, expo=(52.657237600393806, 16.520328806070264)):
         super().__init__()
         self.window_size = window_size
-        self.num_std_dev = num_std_dev
+        self.num_std_dev = 0.2200569382
         self.expo = expo
         self.prices = deque([45 for i in range(window_size)], maxlen=window_size)
 
@@ -25,10 +25,31 @@ class SolarTrading(Policy):
     67.02 window_size=274, num_std_dev=0.1, expo=(15, 1)
     window_size=274, num_std_dev=0.1, expo=(30, 1)
     '''
+    
+    def update_num_std_dev(self):
+        # Calculate a simple volatility index (standard deviation of price changes)
+        price_series = pd.Series(self.prices)
+        price_changes = price_series.diff().dropna()
+        volatility_index = price_changes.std()
+        threshold_high = 100
+        threshold_low = 15
+
+        # Adjust num_std_dev based on the volatility index
+        if volatility_index > threshold_high:
+            self.num_std_dev = 0.25  # More volatile market
+            self.window_size = 230
+        elif volatility_index < threshold_low:
+            self.num_std_dev = 0.05  # Less volatile market
+            self.window_size = 320
+        else:
+            self.num_std_dev = 0.2200569382  # Moderate volatility
+            self.window_size = 282
+
 
 
     def act(self, external_state, internal_state):
         current_price = external_state['price']
+        self.update_num_std_dev()
         pv_power = external_state['pv_power']
         max_charge_rate = internal_state['max_charge_rate']
 

@@ -88,69 +88,69 @@ def parse_parameters(params_list):
         params[key] = eval(value)
     return params
 
-# def perform_eval(args):
-#     start = time.time()
+def perform_eval(args):
+    start = time.time()
 
-#     if args.class_name:
-#         policy_config = {'class_name': args.class_name, 'parameters': parse_parameters(args.param)}
-#     else:
-#         policy_config = load_config("./bot/config.json")
+    if args.class_name:
+        policy_config = {'class_name': args.class_name, 'parameters': parse_parameters(args.param)}
+    else:
+        policy_config = load_config("./bot/config.json")
 
-#     policy_class = policy_classes[policy_config['class_name']]
+    policy_class = policy_classes[policy_config['class_name']]
     
-#     external_states = pd.read_csv(args.data)
-#     if args.output_file:
-#         output_file = args.output_file
-#     else:
-#         results_dir = './results'
-#         os.makedirs(results_dir, exist_ok=True)
-#         output_file = os.path.join(results_dir, f'{datetime.now().strftime("%Y%m%d_%H%M%S")}_{policy_config["class_name"]}.json')
+    external_states = pd.read_csv(args.data)
+    if args.output_file:
+        output_file = args.output_file
+    else:
+        results_dir = './results'
+        os.makedirs(results_dir, exist_ok=True)
+        output_file = os.path.join(results_dir, f'{datetime.now().strftime("%Y%m%d_%H%M%S")}_{policy_config["class_name"]}.json')
 
-#     initial_profit = args.initial_profit if 'initial_profit' in args and args.initial_profit is not None else 0
-#     initial_soc = args.initial_soc if 'initial_soc' in args and args.initial_profit is not None else 7.5
+    initial_profit = args.initial_profit if 'initial_profit' in args and args.initial_profit is not None else 0
+    initial_soc = args.initial_soc if 'initial_soc' in args and args.initial_profit is not None else 7.5
 
-#     set_seed(args.seed)
-#     start_step = args.present_index
+    set_seed(args.seed)
+    start_step = args.present_index
 
-#     historical_data = external_states.iloc[:start_step]
-#     future_data = external_states.iloc[start_step:]
+    historical_data = external_states.iloc[:start_step]
+    future_data = external_states.iloc[start_step:]
 
-#     battery_environment = BatteryEnv(
-#         data=future_data,
-#         initial_charge_kWh=initial_soc,
-#         initial_profit=initial_profit
-#     )
+    battery_environment = BatteryEnv(
+        data=future_data,
+        initial_charge_kWh=initial_soc,
+        initial_profit=initial_profit
+    )
 
-#     policy = policy_class(**policy_config.get('parameters', {}))
-#     policy.load_historical(historical_data)
-#     trial_data = run_trial(battery_environment, policy)
+    policy = policy_class(**policy_config.get('parameters', {}))
+    policy.load_historical(historical_data)
+    trial_data = run_trial(battery_environment, policy)
 
-#     total_profits = trial_data['profits']
-#     rundown_profit_deltas = trial_data['rundown_profit_deltas']
+    total_profits = trial_data['profits']
+    rundown_profit_deltas = trial_data['rundown_profit_deltas']
 
-#     mean_profit = float(np.mean(total_profits))
-#     std_profit = float(np.std(total_profits))
+    mean_profit = float(np.mean(total_profits))
+    std_profit = float(np.std(total_profits))
 
-#     mean_combined_profit = total_profits[-1] + np.sum(rundown_profit_deltas)
+    mean_combined_profit = total_profits[-1] + np.sum(rundown_profit_deltas)
 
-#     outcome = {
-#         'class_name': policy_config['class_name'],
-#         'parameters': policy_config.get('parameters', {}),
-#         'mean_profit': mean_profit,
-#         'std_profit': std_profit,
-#         'score': mean_combined_profit,
-#         'main_trial': trial_data,
-#         'seconds_elapsed': time.time() - start 
-#     }
+    outcome = {
+        'class_name': policy_config['class_name'],
+        'parameters': policy_config.get('parameters', {}),
+        'mean_profit': mean_profit,
+        'std_profit': std_profit,
+        'score': mean_combined_profit,
+        'main_trial': trial_data,
+        'seconds_elapsed': time.time() - start 
+    }
 
-#     print(f'Average profit ($): {mean_profit:.2f} ± {std_profit:.2f}')
-#     print(f'Average profit inc rundown ($): {mean_combined_profit:.2f}')
+    print(f'Average profit ($): {mean_profit:.2f} ± {std_profit:.2f}')
+    print(f'Average profit inc rundown ($): {mean_combined_profit:.2f}')
 
-#     with open(output_file, 'w') as file:
-#         json.dump(outcome, file, indent=2)
+    with open(output_file, 'w') as file:
+        json.dump(outcome, file, indent=2)
 
-#     if args.plot:
-#         plot_results(trial_data['profits'], trial_data['market_prices'], trial_data['socs'], trial_data['actions'])
+    if args.plot:
+        plot_results(trial_data['profits'], trial_data['market_prices'], trial_data['socs'], trial_data['actions'])
 
 
 
@@ -288,7 +288,7 @@ def parse_parameters(params_list):
     if args.plot:
         plot_results(trial_data['profits'], trial_data['market_prices'], trial_data['socs'], trial_data['actions'])
 
-def perform_eval(args):
+# def perform_eval(args):
     start = time.time()
 
     if args.class_name:
@@ -364,7 +364,7 @@ def perform_eval(args):
         
         print(f"Testing combination: {current_policy_params} -> Average profit ($): {mean_profit:.2f} ± {std_profit:.2f}, Average profit inc rundown ($): {mean_combined_profit:.2f}")
 
-        return {'loss': -mean_profit, 'status': STATUS_OK}
+        return {'loss': -mean_combined_profit, 'status': STATUS_OK}
 
     trials = Trials()
     best = fmin(fn=objective,
