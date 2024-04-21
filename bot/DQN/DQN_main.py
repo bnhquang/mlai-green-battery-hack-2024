@@ -7,9 +7,9 @@ from torch.utils.tensorboard import SummaryWriter
 import time
 writer = SummaryWriter(f'./logs/{time.time()}')
 
-EPISODES = 10
-EPISODES_PER_SAVE = 1
-STEPS_PER_LOG = 1000
+EPISODES = 50
+EPISODES_PER_SAVE = 5
+EPISODES_PER_EVAL = 1
 STEPS_PER_UPDATE = 100
 DATASET_PATH = '../data/validation_data.csv'
 CHECKPOINT_PATH = './checkpoints'
@@ -17,18 +17,20 @@ LOAD_PATH = './checkpoints'
 
 
 def train_agent(continue_training):
-
     data = get_dataset(DATASET_PATH)
     # print(len(data))
     env = PowerTrading(BatteryEnv(data))
-    agent = DQN_Agent(replay_mem_size=10000,
-                      gamma=0.99,
-                      epsilon=1,
-                      batch_size=128,
-                      n_actions=4,
-                      min_eps=0.05,
-                      lr=0.0001,
-                      eps_dec=0.00001)
+    agent = DQN_Agent(
+        state_size=7,
+        replay_mem_size=50000,
+        gamma=0.99,
+        epsilon=1,
+        batch_size=256,
+        n_actions=2,
+        min_eps=0.05,
+        lr=0.0001,
+        eps_dec=0.0001
+    )
     if continue_training is True:
         prev_ep = agent.load_agent(LOAD_PATH)
     else:
@@ -40,10 +42,8 @@ def train_agent(continue_training):
 
         score_sum = 0
         loss_sum = 0
-        current_state = tuple(env.external_state.values) + tuple(env.internal_state.values()) + \
-                        (env.battery_cap - env.internal_state['battery_soc'],)
-        # print(data)
-        for i, row in data.iterrows():
+        current_state = env.preprocessed_data.iloc[env.battery_env.current_step].values
+        for i in range(env.battery_env.episode_length - 1):
             # print(i, row)
             t_current_state = torch.tensor(current_state, dtype=torch.float32).to(agent.model.device)
             # print(t_current_state.size())
@@ -61,13 +61,13 @@ def train_agent(continue_training):
                 print(f'Reward: {reward}, Balance: {env.internal_state["total_profit"]}, '
                       f'Charge: {env.internal_state["battery_soc"]}, Step: {env.battery_env.current_step}')
                 agent.update_target_model()
-            if i % STEPS_PER_LOG == 0:
-                agent.model.eval()
-                val_agent(agent)
                 writer.add_scalar('reward', score_sum, ep)
                 writer.add_scalar('train loss', loss_sum, ep)
-                agent.model.train()
 
+        if ep % EPISODES_PER_EVAL == 0:
+            agent.model.eval()
+            val_agent(agent)
+            agent.model.train()
         print('episode', ep, 'score %.2f' % score_sum, 'loss %.2f' % loss_sum, 'epsilon %.2f' % agent.epsilon)
         env.reset()
     writer.close()
@@ -75,9 +75,9 @@ def train_agent(continue_training):
 def val_agent(agent: DQN_Agent):
     test_data = get_dataset(DATASET_PATH, test_data=True)
     test_env = PowerTrading(BatteryEnv(test_data))
-    current_state = tuple(test_env.external_state.values) + tuple(test_env.internal_state.values()) + \
-                    (test_env.battery_cap - test_env.internal_state['battery_soc'],)
-    for i, row in test_data.iterrows():
+
+    current_state = test_env.preprocessed_data.iloc[test_env.battery_env.current_step].values
+    for i in range(test_env.battery_env.episode_length - 1):
         t_current_state = torch.tensor(current_state, dtype=torch.float32).to(agent.model.device)
         action = agent.choose_action(t_current_state)
         new_state, reward = test_env.step(action)

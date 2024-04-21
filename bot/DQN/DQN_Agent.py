@@ -1,9 +1,6 @@
 import random
-
 import torch
-import torch as T
 import torch.nn as nn
-import torch.nn.functional as F
 import torch.optim as optim
 import numpy as np
 from collections import deque
@@ -16,7 +13,7 @@ torch.cuda.manual_seed_all(42)
 TAU = 0.005
 
 class DQN_Agent():
-    def __init__(self, gamma, epsilon, lr, batch_size, n_actions,
+    def __init__(self, state_size, gamma, epsilon, lr, batch_size, n_actions,
                  replay_mem_size=50000, min_eps=0.05, eps_dec=5e-4):
         self.gamma = gamma
         self.epsilon = epsilon
@@ -27,8 +24,8 @@ class DQN_Agent():
         self.n_actions = n_actions
 
         self.replay_mem = deque(maxlen=replay_mem_size)
-        self.model = DQNet(n_actions)
-        self.target_model = DQNet(n_actions)
+        self.model = DQNet(state_size, n_actions)
+        self.target_model = DQNet(state_size, n_actions)
         self.optimizer = optim.AdamW(self.model.parameters(), lr=lr)
         self.criterion = nn.SmoothL1Loss()
 
@@ -70,8 +67,6 @@ class DQN_Agent():
             return 0
         # Sample a batch from the replay memory of transitions
         batch = random.sample(self.replay_mem, self.batch_size)
-        # not_done_mask = torch.tensor(([transition[4] is False for transition in batch]),
-        #                              device=self.model.device, dtype=torch.bool).to(self.model.device)
         next_state_batch = torch.tensor(np.array([transition[3] for transition in batch]),
                                             device=self.model.device, dtype=torch.float32).to(self.model.device)
         current_state_batch = torch.tensor(np.array([transition[0] for transition in batch]),
