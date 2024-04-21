@@ -12,20 +12,7 @@ class SolarTradingV4(Policy):
         self.rsi_period = 3
         self.prices = deque([45 for i in range(window_size)], maxlen=window_size)
 
-    '''
-    63.08 window_size=144, num_std_dev=0.5, expo=(12, 1)
-    52.34 window_size=72, num_std_dev=0.5, expo=(12, 1)
-    62.45 window_size=288, num_std_dev=0.5, expo=(12, 1)
-    55.24 window_size=288, num_std_dev=1, expo=(12, 0.5)
-    65.62 window_size=288, num_std_dev=0.4, expo=(12, 0.5)
-    64.46 window_size=144, num_std_dev=0.4, expo=(12, 0.5)
-    64.34 window_size=288, num_std_dev=0.5, expo=(15, 0.4)
-    64.75 window_size=250, num_std_dev=0.1, expo=(15, 0.4)
-    65.61 window_size=288, num_std_dev=0.4, expo=(15, 0.3)
-    66.56 window_size=275, num_std_dev=0.1, expo=(15, 0.4)
-    67.02 window_size=274, num_std_dev=0.1, expo=(15, 1)
-    window_size=274, num_std_dev=0.1, expo=(30, 1)
-    '''
+
 
     
     def calculate_rsi(self):
